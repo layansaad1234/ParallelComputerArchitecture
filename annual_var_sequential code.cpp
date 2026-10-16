@@ -69,9 +69,14 @@ SimulationResult simulateAnnualVaR(std::size_t n, unsigned int seed) {
 
     // Run the simulation once for each scenario.
     for (std::size_t i = 0; i < n; ++i) {
-        const double annualReturn = annualReturnDistribution(generator);
-        const double finalValue = INITIAL_INVESTMENT * (1.0 + annualReturn);
-        const double loss = INITIAL_INVESTMENT - finalValue;
+        const double annualReturn =
+    std::max(-1.0, annualReturnDistribution(generator));
+
+    const double finalValue =
+    INITIAL_INVESTMENT * (1.0 + annualReturn);
+
+    const double loss =
+    INITIAL_INVESTMENT - finalValue;
 
         losses.push_back(loss);
         lossSum += loss;
@@ -179,9 +184,8 @@ int main() {
     csv.close();
     std::cout << "\nDetailed results saved to " << outputFile << '\n';
     std::cout
-        << "\nModeling note: the normal distribution can generate returns below "
-        << "-100%, which can result in a negative final investment value. "
-        << "This implementation does not clip or discard those scenarios.\n";
+        << "\nModeling note: simulated returns below -100% are "
+        << "floored at -100% to prevent negative final investment values.\n";
 
     return 0;
 }
